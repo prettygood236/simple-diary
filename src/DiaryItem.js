@@ -1,11 +1,41 @@
-const DiaryItem = ({
-  id,
-  author,
-  content,
-  emotion,
-  created_data,
-  onDelete,
-}) => {
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { DiaryDispatchContext } from './App';
+
+const DiaryItem = ({ id, author, content, emotion, created_data }) => {
+  useEffect(() => {
+    console.log(`${id}번째 아이템 렌더`);
+  });
+
+  const { onRemove, onEdit } = useContext(DiaryDispatchContext);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [editContent, setEditContent] = useState(content);
+  const editContentInput = useRef();
+
+  const toggleIsEdit = () => setIsEdit(!isEdit);
+
+  const handleEdit = () => {
+    if (editContent.length < 5) {
+      editContentInput.current.focus();
+      return;
+    }
+    if (window.confirm(`${id}번째 일기를 정말 수정하시겠습니까?`)) {
+      onEdit(id, editContent);
+      toggleIsEdit();
+    }
+  };
+
+  const handleQuitEdit = () => {
+    setIsEdit(!isEdit);
+    setEditContent(content);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`${id}번째 일기를 정말 삭제하시겠습니까?`)) {
+      onRemove(id);
+    }
+  };
+
   return (
     <div className='DiaryItem'>
       <div className='info'>
@@ -15,18 +45,33 @@ const DiaryItem = ({
         <br />
         <span className='date'>{new Date(created_data).toLocaleString()}</span>
       </div>
-      <div className='content'>{content}</div>
-      <button
-        onClick={() => {
-          if (window.confirm(`${id}번째 일기를 정말 삭제하시겠습니까?`)) {
-            onDelete(id);
-          }
-        }}
-      >
-        삭제하기
-      </button>
+      <div className='content'>
+        {isEdit ? (
+          <>
+            <textarea
+              ref={editContentInput}
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+            />
+          </>
+        ) : (
+          <>{content}</>
+        )}
+      </div>
+
+      {isEdit ? (
+        <>
+          <button onClick={handleEdit}>수정</button>
+          <button onClick={handleQuitEdit}>취소</button>
+        </>
+      ) : (
+        <>
+          <button onClick={handleDelete}>삭제하기</button>
+          <button onClick={toggleIsEdit}>수정하기</button>
+        </>
+      )}
     </div>
   );
 };
 
-export default DiaryItem;
+export default React.memo(DiaryItem);

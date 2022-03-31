@@ -1,12 +1,21 @@
-import { useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { DiaryDispatchContext } from './App';
 
-const DiaryEditor = ({ onCreate, onDelete }) => {
-  const authorInput = useRef(0);
-  const contentInput = useRef(0);
+const DiaryEditor = React.memo(() => {
+  // useEffect로 리액트 생애주기에 접근해 렌더링 여부를 확인
+  useEffect(() => {
+    console.log('DiaryEditor Render');
+  });
+
+  const { onCreate } = useContext(DiaryDispatchContext);
+
+  const authorInput = useRef();
+  const contentInput = useRef();
+
   const [state, setState] = useState({
     author: '',
     content: '',
-    emotion: '',
+    emotion: 1,
   });
   const handleChangeState = (e) => {
     setState({
@@ -36,6 +45,8 @@ const DiaryEditor = ({ onCreate, onDelete }) => {
         <input
           ref={authorInput}
           name='author'
+          placeholder='작성자'
+          type='text'
           value={state.author}
           onChange={handleChangeState}
         ></input>
@@ -44,12 +55,14 @@ const DiaryEditor = ({ onCreate, onDelete }) => {
         <textarea
           ref={contentInput}
           name='content'
+          placeholder='일기'
+          type='text'
           value={state.content}
           onChange={handleChangeState}
         ></textarea>
       </div>
       <div>
-        오늘의 감정점수 :
+        <span> 오늘의 감정점수 : </span>
         <select
           name='emotion'
           value={state.emotion}
@@ -67,6 +80,6 @@ const DiaryEditor = ({ onCreate, onDelete }) => {
       </div>
     </div>
   );
-};
+});
 
 export default DiaryEditor;
