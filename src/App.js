@@ -9,10 +9,14 @@ import './App.css';
 import DiaryEditor from './DiaryEditor';
 import DiaryList from './DiaryList';
 
+export const DiaryStateContext = React.createContext();
+export const DiaryDispatchContext = React.createContext();
+
 const reducer = (state, action) => {
   switch (action.type) {
     case 'INIT':
       return action.data;
+
     case 'CREATE':
       const created_date = new Date().getTime();
       const newItem = {
@@ -22,8 +26,10 @@ const reducer = (state, action) => {
       // 어차피 같은 이름이기 때문에 created_date : created_date 처럼 적지 않더라도
       // create_date key를 찾아 create_data value를 업데이트한다.
       return [newItem, ...state];
+
     case 'REMOVE':
       return state.filter((it) => it.id !== action.targetId);
+
     case 'EDIT':
       return state.map((it) =>
         it.id === action.targetId ? { ...it, content: action.newContent } : it
@@ -33,12 +39,8 @@ const reducer = (state, action) => {
   }
 };
 
-export const DiaryStateContext = React.createContext();
-export const DiaryDispatchContext = React.createContext();
-
 const App = () => {
   const [data, dispatch] = useReducer(reducer, []);
-
   const dataId = useRef(0);
 
   const getData = async () => {
@@ -83,13 +85,9 @@ const App = () => {
     dispatch({ type: 'EDIT', targetId, newContent });
   }, []);
 
-  const memoizedDispatches = useMemo(() => {
-    return { onCreate, onRemove, onEdit };
-  }, []);
-
   // useMemo : memoized된 값을 반환하며 deps가 바뀔때만 된 감싼 함수를 다시 실행한다.
   // * useCallback : memoized된 함수를 반환한다.
-  const getDiaryAnalysis = useMemo(() => {
+  const memoizedDiaryAnalysis = useMemo(() => {
     if (data.length === 0) {
       return { goodCount: 0, badCount: 0, goodRatio: 0 };
     }
@@ -99,16 +97,24 @@ const App = () => {
     return { goodCount, badCount, goodRatio };
   }, [data.length]);
 
-  const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+  const { goodCount, badCount, goodRatio } = memoizedDiaryAnalysis;
+
+  const store = {
+    data,
+  };
+
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onRemove, onEdit };
+  }, []);
 
   return (
-    <DiaryStateContext.Provider value={data}>
+    <DiaryStateContext.Provider value={store}>
       {/* Provider도 컴포넌트이기 때문에 props가 변경되면 리렌더링된다. 
       따라서 data가 바뀌어서 리랜더링 될때 최적화한 onCreate, onEdit, onRemove도 리랜더되지 않으려면 Provider를 나누어 주어야 한다 */}
       <DiaryDispatchContext.Provider value={memoizedDispatches}>
         <div className='App'>
           {/* React LifeCycle에 접근하게 해주는 useEffect 실습
-        <LifeCycle /> */}
+          <LifeCycle /> */}
           {/* props가 바뀔때만 컴포넌트를 랜더링해주는 고차컴포넌트 React.memo 실습 */}
           {/* <OptimizeTest /> */}
           {/* <OptimizeTest2 /> */}

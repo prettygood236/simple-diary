@@ -10,13 +10,13 @@ const DiaryItem = ({ id, author, content, emotion, created_data }) => {
 
   const [isEdit, setIsEdit] = useState(false);
   const [editContent, setEditContent] = useState(content);
-  const editContentInput = useRef();
+  const editContentRef = useRef();
 
   const toggleIsEdit = () => setIsEdit(!isEdit);
 
   const handleEdit = () => {
     if (editContent.length < 5) {
-      editContentInput.current.focus();
+      editContentRef.current.focus();
       return;
     }
     if (window.confirm(`${id}번째 일기를 정말 수정하시겠습니까?`)) {
@@ -49,7 +49,7 @@ const DiaryItem = ({ id, author, content, emotion, created_data }) => {
         {isEdit ? (
           <>
             <textarea
-              ref={editContentInput}
+              ref={editContentRef}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
             />

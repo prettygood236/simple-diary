@@ -9,14 +9,15 @@ const DiaryEditor = React.memo(() => {
 
   const { onCreate } = useContext(DiaryDispatchContext);
 
-  const authorInput = useRef();
-  const contentInput = useRef();
+  const authorRef = useRef();
+  const contentRef = useRef();
 
   const [state, setState] = useState({
     author: '',
     content: '',
     emotion: 1,
   });
+
   const handleChangeState = (e) => {
     setState({
       ...state,
@@ -26,11 +27,11 @@ const DiaryEditor = React.memo(() => {
   };
   const handleSubmit = () => {
     if (state.author.length < 1) {
-      authorInput.current.focus();
+      authorRef.current.focus();
       return;
     }
     if (state.content.length < 5) {
-      contentInput.current.focus();
+      contentRef.current.focus();
       return;
     }
     alert('저장 성공!');
@@ -43,7 +44,7 @@ const DiaryEditor = React.memo(() => {
       <h2>오늘의 일기</h2>
       <div>
         <input
-          ref={authorInput}
+          ref={authorRef}
           name='author'
           placeholder='작성자'
           type='text'
@@ -53,7 +54,7 @@ const DiaryEditor = React.memo(() => {
       </div>
       <div>
         <textarea
-          ref={contentInput}
+          ref={contentRef}
           name='content'
           placeholder='일기'
           type='text'
